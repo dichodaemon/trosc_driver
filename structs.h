@@ -22,6 +22,8 @@ struct Status {
   float trackDistance;
   float trackCurvature;
   float trackWidth;
+  float nextCurvature;
+  float nextDistance;
   float speed;
   float yaw;
   float x;

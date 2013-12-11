@@ -120,12 +120,25 @@ drive(int index, tCarElt* car, tSituation *s)
   status.trackDistance = car->_trkPos.toMiddle;
   if ( car->_trkPos.seg->type == TR_STR ) {
     status.trackCurvature = 0;
-  } else if( car->_trkPos.seg->type == TR_LFT ) {
-    status.trackCurvature = 1.0 / car->_trkPos.seg->radius;
+    status.nextDistance = car->_trkPos.seg->length - car->_trkPos.toStart;
   } else {
-    status.trackCurvature = -1.0 / car->_trkPos.seg->radius;
+    if( car->_trkPos.seg->type == TR_LFT ) {
+      status.trackCurvature = 1.0 / car->_trkPos.seg->radius;
+    } else {
+      status.trackCurvature = -1.0 / car->_trkPos.seg->radius;
+    }
+    status.nextDistance = ( car->_trkPos.seg->arc - car->_trkPos.toStart ) * car->_trkPos.seg->radius;
   }
   status.trackWidth = car->_trkPos.seg->width;
+  if ( car->_trkPos.seg->next->type == TR_STR ) {
+    status.nextCurvature = 0;
+  } else if( car->_trkPos.seg->next->type == TR_LFT ) {
+    status.nextCurvature = 1.0 / car->_trkPos.seg->next->radius;
+  } else {
+    status.nextCurvature = -1.0 / car->_trkPos.seg->next->radius;
+  }
+
+  std::cerr << "k:" << status.nextCurvature << ", d:" << status.nextDistance << ", l:" << car->_trkPos.seg->length << std::endl;
 
   status.speed = car->_speed_x;
   status.yaw = car->_yaw;
