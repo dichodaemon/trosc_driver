@@ -1,7 +1,7 @@
 /***************************************************************************
 
     file                 : trosc.cpp
-    created              : Tue Dec 10 09:36:42 CET 2013
+    created              : Wed Dec 11 16:54:59 CET 2013
     copyright            : (C) 2002 Dizan Vasquez
 
  ***************************************************************************/
@@ -15,7 +15,7 @@
 #include <string.h> 
 #include <math.h>
 
-#include <tgf.h> 
+//#include <tgf.h> 
 #include <track.h> 
 #include <car.h> 
 #include <raceman.h> 
@@ -38,47 +38,46 @@ static int  InitFuncPt(int index, void *pt);
 
 Facade facade( 6000 );
 
-
 /* 
  * Module entry point  
  */ 
 extern "C" int 
 trosc(tModInfo *modInfo) 
 {
-  memset(modInfo, 0, 10*sizeof(tModInfo));
+    memset(modInfo, 0, 10*sizeof(tModInfo));
 
-  modInfo->name    = "trosc";		/* name of the module (short) */
-  modInfo->desc    = "";	/* description of the module (can be long) */
-  modInfo->fctInit = InitFuncPt;		/* init function */
-  modInfo->gfId    = ROB_IDENT;		/* supported framework version */
-  modInfo->index   = 1;
+    modInfo->name    = strdup("trosc");		/* name of the module (short) */
+    modInfo->desc    = strdup("");	/* description of the module (can be long) */
+    modInfo->fctInit = InitFuncPt;		/* init function */
+    modInfo->gfId    = ROB_IDENT;		/* supported framework version */
+    modInfo->index   = 1;
 
-  return 0; 
+    return 0; 
 } 
 
 /* Module interface initialization. */
 static int 
 InitFuncPt(int index, void *pt) 
 { 
-  tRobotItf *itf  = (tRobotItf *)pt; 
+    tRobotItf *itf  = (tRobotItf *)pt; 
 
-  itf->rbNewTrack = initTrack; /* Give the robot the track view called */ 
-  /* for every track change or new race */ 
-  itf->rbNewRace  = newrace; 	 /* Start a new race */
-  itf->rbDrive    = drive;	 /* Drive during race */
-  itf->rbPitCmd   = NULL;
-  itf->rbEndRace  = endrace;	 /* End of the current race */
-  itf->rbShutdown = shutdown;	 /* Called before the module is unloaded */
-  itf->index      = index; 	 /* Index used if multiple interfaces */
-  return 0; 
+    itf->rbNewTrack = initTrack; /* Give the robot the track view called */ 
+				 /* for every track change or new race */ 
+    itf->rbNewRace  = newrace; 	 /* Start a new race */
+    itf->rbDrive    = drive;	 /* Drive during race */
+    itf->rbPitCmd   = NULL;
+    itf->rbEndRace  = endrace;	 /* End of the current race */
+    itf->rbShutdown = shutdown;	 /* Called before the module is unloaded */
+    itf->index      = index; 	 /* Index used if multiple interfaces */
+    return 0; 
 } 
 
 /* Called for every track change or new race. */
 static void  
 initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSituation *s) 
 { 
-  curTrack = track;
-  *carParmHandle = NULL; 
+    curTrack = track;
+    *carParmHandle = NULL; 
 } 
 
 /* Start a new race. */
