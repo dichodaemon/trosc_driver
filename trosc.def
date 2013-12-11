@@ -1,0 +1,13 @@
+;
+;   file                 : trosc.def
+;   created              : Tue Dec 10 09:36:42 CET 2013
+;   copyright            : (C) 2002 Dizan Vasquez
+;
+
+LIBRARY	trosc
+
+SECTIONS .data READ WRITE
+
+EXPORTS
+	trosc
+
