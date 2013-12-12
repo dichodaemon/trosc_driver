@@ -38,46 +38,86 @@ static int  InitFuncPt(int index, void *pt);
 
 Facade facade( 6000 );
 
+int sign( float value ) {
+  if ( value > 0.0 ) {
+    return 1.0;
+  } else if ( value < 0.0 ) {
+    return -1.0;
+  }
+  return 0.0;
+}
+
+float computeCurvature( tTrackSeg * segment ) 
+{
+  if ( segment->type == TR_STR ) {
+    return 0;
+  } else if( segment->type == TR_LFT ) {
+    return 1.0 / segment->radius;
+  } else {
+    return -1.0 / segment->radius;
+  }
+}
+
+void nextCurve( tCarElt * car, Status & status )
+{
+  float curvature = 1car->_trkPos.seg->radius;
+  float cummulated = 0;
+  if ( car->_trkPos.seg->type == TR_STR ) {
+    cummulated = car->_trkPos.seg->length - car->_trkPos.toStart;
+    currentRadius 
+  } else {
+    cummulated = ( car->_trkPos.seg->arc - car->_trkPos.toStart ) * car->_trkPos.seg->radius;
+  }
+
+
+  tTrackSeg * current = car->_trkPos.seg->next;
+  
+  while ( cummulated < 200 ) {
+    if ( current
+    
+  }
+}
+
 /* 
  * Module entry point  
  */ 
 extern "C" int 
 trosc(tModInfo *modInfo) 
 {
-    memset(modInfo, 0, 10*sizeof(tModInfo));
+  memset(modInfo, 0, 10*sizeof(tModInfo));
 
-    modInfo->name    = strdup("trosc");		/* name of the module (short) */
-    modInfo->desc    = strdup("");	/* description of the module (can be long) */
-    modInfo->fctInit = InitFuncPt;		/* init function */
-    modInfo->gfId    = ROB_IDENT;		/* supported framework version */
-    modInfo->index   = 1;
+  modInfo->name    = strdup("trosc");		/* name of the module (short) */
+  modInfo->desc    = strdup("");	/* description of the module (can be long) */
+  modInfo->fctInit = InitFuncPt;		/* init function */
+  modInfo->gfId    = ROB_IDENT;		/* supported framework version */
+  modInfo->index   = 1;
 
-    return 0; 
+  return 0; 
 } 
 
 /* Module interface initialization. */
 static int 
 InitFuncPt(int index, void *pt) 
 { 
-    tRobotItf *itf  = (tRobotItf *)pt; 
+  tRobotItf *itf  = (tRobotItf *)pt; 
 
-    itf->rbNewTrack = initTrack; /* Give the robot the track view called */ 
-				 /* for every track change or new race */ 
-    itf->rbNewRace  = newrace; 	 /* Start a new race */
-    itf->rbDrive    = drive;	 /* Drive during race */
-    itf->rbPitCmd   = NULL;
-    itf->rbEndRace  = endrace;	 /* End of the current race */
-    itf->rbShutdown = shutdown;	 /* Called before the module is unloaded */
-    itf->index      = index; 	 /* Index used if multiple interfaces */
-    return 0; 
+  itf->rbNewTrack = initTrack; /* Give the robot the track view called */ 
+  /* for every track change or new race */ 
+  itf->rbNewRace  = newrace; 	 /* Start a new race */
+  itf->rbDrive    = drive;	 /* Drive during race */
+  itf->rbPitCmd   = NULL;
+  itf->rbEndRace  = endrace;	 /* End of the current race */
+  itf->rbShutdown = shutdown;	 /* Called before the module is unloaded */
+  itf->index      = index; 	 /* Index used if multiple interfaces */
+  return 0; 
 } 
 
 /* Called for every track change or new race. */
 static void  
 initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSituation *s) 
 { 
-    curTrack = track;
-    *carParmHandle = NULL; 
+  curTrack = track;
+  *carParmHandle = NULL; 
 } 
 
 /* Start a new race. */
@@ -120,23 +160,14 @@ drive(int index, tCarElt* car, tSituation *s)
   status.trackDistance = car->_trkPos.toMiddle;
   if ( car->_trkPos.seg->type == TR_STR ) {
     status.trackCurvature = 0;
-    status.nextDistance = car->_trkPos.seg->length - car->_trkPos.toStart;
+  } else if( car->_trkPos.seg->type == TR_LFT ) {
+    status.trackCurvature = 1.0 / car->_trkPos.seg->radius;
   } else {
-    if( car->_trkPos.seg->type == TR_LFT ) {
-      status.trackCurvature = 1.0 / car->_trkPos.seg->radius;
-    } else {
-      status.trackCurvature = -1.0 / car->_trkPos.seg->radius;
-    }
-    status.nextDistance = ( car->_trkPos.seg->arc - car->_trkPos.toStart ) * car->_trkPos.seg->radius;
+    status.trackCurvature = -1.0 / car->_trkPos.seg->radius;
   }
   status.trackWidth = car->_trkPos.seg->width;
-  if ( car->_trkPos.seg->next->type == TR_STR ) {
-    status.nextCurvature = 0;
-  } else if( car->_trkPos.seg->next->type == TR_LFT ) {
-    status.nextCurvature = 1.0 / car->_trkPos.seg->next->radius;
-  } else {
-    status.nextCurvature = -1.0 / car->_trkPos.seg->next->radius;
-  }
+
+  nextCurve( car, status );
 
   std::cerr << "k:" << status.nextCurvature << ", d:" << status.nextDistance << ", l:" << car->_trkPos.seg->length << std::endl;
 
