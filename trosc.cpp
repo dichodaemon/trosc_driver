@@ -158,7 +158,7 @@ drive(int index, tCarElt* car, tSituation *s)
   status.gear = car->priv.gear;
   status.gearRatio = car->_gearRatio[car->_gear + car->_gearOffset];
   status.lowerGearRatio = car->_gearRatio[car->_gear + car->_gearOffset - 1];
-  status.maxRPM = car->_enginerpmRedLine;
+  status.maxRPM = car->_enginerpmMax;
   status.wheelRadius = car->_wheelRadius( REAR_RGT );
 
   
