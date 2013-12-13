@@ -36,16 +36,10 @@ static void endrace(int index, tCarElt *car, tSituation *s);
 static void shutdown(int index);
 static int  InitFuncPt(int index, void *pt); 
 
-Facade facade( 6000 );
+#define CURVATURE_TOLERANCE 0.5
+#define CURVATURE_MAX_DISTANCE 200
 
-int sign( float value ) {
-  if ( value > 0.0 ) {
-    return 1.0;
-  } else if ( value < 0.0 ) {
-    return -1.0;
-  }
-  return 0.0;
-}
+Facade facade( 6000 );
 
 float computeCurvature( tTrackSeg * segment ) 
 {
@@ -60,11 +54,10 @@ float computeCurvature( tTrackSeg * segment )
 
 void nextCurve( tCarElt * car, Status & status )
 {
-  float curvature = 1car->_trkPos.seg->radius;
+  float curvature = computeCurvature( car->_trkPos.seg );;
   float cummulated = 0;
   if ( car->_trkPos.seg->type == TR_STR ) {
     cummulated = car->_trkPos.seg->length - car->_trkPos.toStart;
-    currentRadius 
   } else {
     cummulated = ( car->_trkPos.seg->arc - car->_trkPos.toStart ) * car->_trkPos.seg->radius;
   }
@@ -72,10 +65,25 @@ void nextCurve( tCarElt * car, Status & status )
 
   tTrackSeg * current = car->_trkPos.seg->next;
   
-  while ( cummulated < 200 ) {
-    if ( current
-    
+  while ( cummulated < CURVATURE_MAX_DISTANCE ) {
+    float currentCurvature = computeCurvature( current );
+    float ratio = 1.0;
+    if ( currentCurvature != 0.0 ) {
+      ratio = abs( curvature / currentCurvature );
+    } else if ( curvature != currentCurvature ) {
+      ratio = 1.0 + 10 * CURVATURE_TOLERANCE;
+    }
+
+    if ( ratio > 1.0 + CURVATURE_TOLERANCE || ratio < 1.0 - CURVATURE_TOLERANCE ) {
+      status.nextCurvature = currentCurvature;
+      status.nextDistance = cummulated;
+      return;
+    }
+    cummulated += current->length;
+    current = current->next;
   }
+  status.nextCurvature = curvature;
+  status.nextDistance = cummulated;
 }
 
 /* 
@@ -158,15 +166,8 @@ drive(int index, tCarElt* car, tSituation *s)
   NORM_PI_PI( yaw );
   status.trackYaw = yaw;
   status.trackDistance = car->_trkPos.toMiddle;
-  if ( car->_trkPos.seg->type == TR_STR ) {
-    status.trackCurvature = 0;
-  } else if( car->_trkPos.seg->type == TR_LFT ) {
-    status.trackCurvature = 1.0 / car->_trkPos.seg->radius;
-  } else {
-    status.trackCurvature = -1.0 / car->_trkPos.seg->radius;
-  }
+  status.trackCurvature = computeCurvature( car->_trkPos.seg );
   status.trackWidth = car->_trkPos.seg->width;
-
   nextCurve( car, status );
 
   std::cerr << "k:" << status.nextCurvature << ", d:" << status.nextDistance << ", l:" << car->_trkPos.seg->length << std::endl;
