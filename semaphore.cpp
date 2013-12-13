@@ -10,7 +10,8 @@ Semaphore::Semaphore( int key )
 {
   id_ = semget ( key, 1, IPC_CREAT | 0777 );
   std::cerr << "Created semaphore, return code:" << id_ << std::endl;
-  int result = semctl( id_, 0, SETALL, 1 );
+
+  int result = semctl( id_, 0, SETVAL, 1 );
   if ( result != 0 ) {
     std::cerr << "Problem initializing semaphore:" << strerror( errno ) << std::endl;
   }
