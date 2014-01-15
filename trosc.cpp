@@ -189,6 +189,8 @@ drive(int index, tCarElt* car, tSituation *s)
       o.y = s->cars[i]->_pos_Y;
       o.vX = s->cars[i]->_speed_x * cos( s->cars[i]->_yaw );
       o.vY = s->cars[i]->_speed_x * sin( s->cars[i]->_yaw );
+      o.width = s->cars[i]->_dimension_y;
+      o.height = s->cars[i]->_dimension_x;
       count++;
     }
   }

@@ -36,6 +36,8 @@ struct Obstacle {
   float y;
   float vX;
   float vY;
+  float width;
+  float height;
 };
 
 struct Buffer {
