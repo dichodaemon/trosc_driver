@@ -170,8 +170,6 @@ drive(int index, tCarElt* car, tSituation *s)
   status.trackWidth = car->_trkPos.seg->width;
   nextCurve( car, status );
 
-  std::cerr << "k:" << status.nextCurvature << ", d:" << status.nextDistance << ", l:" << car->_trkPos.seg->length << std::endl;
-
   status.speed = car->_speed_x;
   status.yaw = car->_yaw;
   status.x = car->_pos_X;
@@ -183,12 +181,17 @@ drive(int index, tCarElt* car, tSituation *s)
   int count = 0;
   for ( int i = 0; i <= obstacles.size(); ++i ) {
     if ( s->cars[i]->index != car->index ) {
+      float x = s->cars[i]->_pos_X - status.x;
+      float y = s->cars[i]->_pos_Y - status.y;
+      float yaw = s->cars[i]->_yaw - status.yaw;
+      NORM_PI_PI( yaw );
       Obstacle & o = obstacles[count];
       o.id = s->cars[i]->index;
-      o.x = s->cars[i]->_pos_X;
-      o.y = s->cars[i]->_pos_Y;
-      o.vX = s->cars[i]->_speed_x * cos( s->cars[i]->_yaw );
-      o.vY = s->cars[i]->_speed_x * sin( s->cars[i]->_yaw );
+      o.x = x * cos( -status.yaw ) - y * sin( -status.yaw );
+      o.y = y * cos( -status.yaw ) + x * sin( -status.yaw );
+      o.theta = yaw;
+      o.vX = s->cars[i]->_speed_x * cos( yaw ) + s->cars[i]->_speed_y * cos( yaw + 3.14159265 );
+      o.vY = s->cars[i]->_speed_x * sin( yaw ) + s->cars[i]->_speed_y * sin( yaw + 3.14159265 );
       o.width = s->cars[i]->_dimension_y;
       o.height = s->cars[i]->_dimension_x;
       count++;
