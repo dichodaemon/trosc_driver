@@ -9,7 +9,7 @@
 ROBOT       = trosc
 MODULE      = ${ROBOT}.so
 MODULEDIR   = drivers/${ROBOT}
-SOURCES     = ${ROBOT}.cpp facade.cpp semaphore.cpp
+SOURCES     = ${ROBOT}.cpp facade.cpp semaphore.cpp DataCollection.cpp
 
 SHIPDIR     = drivers/${ROBOT}
 SHIP        = ${ROBOT}.xml car8-trb1.rgb logo.rgb
